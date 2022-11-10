@@ -8,16 +8,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.tabatatimer.ui.theme.SettingsScreen
 import com.example.tabatatimer.ui.theme.TabataTimerTheme
 import com.example.tabatatimer.ui.theme.add_todo.AddToDoScreen
-import com.example.tabatatimer.ui.theme.navigation_drawer.DrawerBody
-import com.example.tabatatimer.ui.theme.navigation_drawer.DrawerHeader
-import com.example.tabatatimer.ui.theme.navigation_drawer.MenuItem
+import com.example.tabatatimer.ui.theme.navigation_drawer.DrawContent
 import com.example.tabatatimer.ui.theme.todo_list.ToDoListScreen
 import com.example.tabatatimer.util.Routes
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,37 +34,14 @@ class MainActivity : ComponentActivity() {
                 
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
+                val navController = rememberNavController()
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        DrawerHeader()
-                        DrawerBody(
-                            items = listOf(
-                                MenuItem(
-                                    id = "home",
-                                    title = "Home",
-                                    icon = Icons.Default.Home,
-                                    contentDescription = "Go to home page"
-                                ),
-                                MenuItem(
-                                    id = "settings",
-                                    title = "Settings",
-                                    icon = Icons.Default.Settings,
-                                    contentDescription = "Settings"
-                                ),
-                                MenuItem(
-                                    id = "github",
-                                    title = "GitHub",
-                                    icon = Icons.Default.Info,
-                                    contentDescription = "Github"
-                                ),
-                            ),
-                            onItemClick = {
-
-                            }
-                        )
+                        DrawContent(navController = navController, drawerState = drawerState)
                     },
+                    scrimColor = Color(0xD0000000)
                 ) {
                     Scaffold(
                         topBar = {
@@ -88,32 +65,34 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                    ) { }
-                }
-
-                val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = Routes.TODO_LIST
-                ) {
-                    composable(Routes.TODO_LIST) {
-                        ToDoListScreen(onNavigate = {
-                                navController.navigate(it.route)
-                            }
-                        )
-                    }
-                    composable(
-                        Routes.ADD_EDIT_TODO + "?todoId={todoId}",
-                        arguments = listOf(
-                            navArgument(name = "todoId") {
-                                type = NavType.IntType
-                                defaultValue = -1
-                            }
-                        )
                     ) {
-                        AddToDoScreen(onPopBackStack = {
-                            navController.popBackStack()
-                        })
+                        NavHost(
+                            navController = navController,
+                            startDestination = Routes.TODO_LIST
+                        ) {
+                            composable(Routes.TODO_LIST) {
+                                ToDoListScreen(onNavigate = {
+                                        navController.navigate(it.route)
+                                    }
+                                )
+                            }
+                            composable(
+                                Routes.ADD_EDIT_TODO + "?todoId={todoId}",
+                                arguments = listOf(
+                                    navArgument(name = "todoId") {
+                                        type = NavType.IntType
+                                        defaultValue = -1
+                                    }
+                                )
+                            ) {
+                                AddToDoScreen(onPopBackStack = {
+                                    navController.popBackStack()
+                                })
+                            }
+                            composable(Routes.SETTINGS) {
+                                SettingsScreen()
+                            }
+                        }
                     }
                 }
             }
