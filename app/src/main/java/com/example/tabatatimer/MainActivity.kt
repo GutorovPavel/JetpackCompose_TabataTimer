@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     drawerContent = {
                         DrawContent(navController = navController, drawerState = drawerState)
                     },
-                    scrimColor = Color(0xDD000000)
+                    scrimColor = Color(0xE4000000)
                 ) {
                     Scaffold(
                         topBar = {

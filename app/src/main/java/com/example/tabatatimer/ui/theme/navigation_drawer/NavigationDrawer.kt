@@ -17,10 +17,23 @@ fun DrawerHeader() {
     Box (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(80.dp),
+            .padding(0.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(text = "Timers", fontSize = 50.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun DrawerFooter() {
+    Box (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "powered by @visshiisort // " +
+                "2022", fontSize = 10.sp, color = Color.LightGray, fontWeight = FontWeight.Thin)
     }
 }
 
@@ -32,11 +45,15 @@ fun DrawContent(
 ) {
     Column (
         modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
+            .fillMaxHeight()
+            .padding(30.dp)
+            .width(350.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DrawerHeader()
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(370.dp))
         DrawerItems(navController = navController, drawerState = drawerState)
+        Spacer(modifier = Modifier.height(80.dp))
+        DrawerFooter()
     }
 }
