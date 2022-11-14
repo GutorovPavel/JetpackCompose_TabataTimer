@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TabataTimerTheme {
+            TabataTimerTheme(darkTheme = true) {
                 
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     drawerContent = {
                         DrawContent(navController = navController, drawerState = drawerState)
                     },
-                    scrimColor = Color(0xD0000000)
+                    scrimColor = Color(0xDD000000)
                 ) {
                     Scaffold(
                         topBar = {

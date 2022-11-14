@@ -39,19 +39,6 @@ fun DrawerItems(navController: NavController, drawerState: DrawerState) {
         modifier = Modifier.padding(10.dp)
     )
     NavigationDrawerItem(
-        icon = { Icon (imageVector = Icons.Filled.List, contentDescription = "ToDo Lists") },
-        label = { Text (text = "ToDo Lists") },
-        selected = destination?.route == Routes.All_LISTS,
-        onClick = {
-            navController.navigate(Routes.All_LISTS, navOptions {
-                this.launchSingleTop = true
-                this.restoreState = true
-            })
-            scope.launch { drawerState.close() }
-        },
-        modifier = Modifier.padding(10.dp)
-    )
-    NavigationDrawerItem(
         icon = { Icon (imageVector = Icons.Filled.Settings, contentDescription = "Settings") },
         label = { Text (text = "Settings") },
         selected = destination?.route == Routes.SETTINGS,

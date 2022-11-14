@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tabatatimer.Timer
 import com.example.tabatatimer.util.UiEvent
@@ -55,17 +53,13 @@ fun ToDoListScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(150.dp))
-            Timer(
-                totalTime = 10L * 1000L,
-                inactiveBarColor = Color.LightGray,
-                modifier = Modifier.size(250.dp)
-            )
+            Timer(modifier = Modifier.size(250.dp)) // Timer
             Spacer(modifier = Modifier.height(50.dp))
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(30.dp)
-                    .height(250.dp)
+                    .height(193.dp)
             ) {
                 items(todos.value) { todo ->
                     ToDoItem(
@@ -80,6 +74,12 @@ fun ToDoListScreen(
                     )
                 }
             }
+            //Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "                                  Add new task",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.secondary
+            )
         }
     }
 }

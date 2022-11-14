@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,8 +25,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun Timer(
-    totalTime: Long,
-    inactiveBarColor: Color,
+    workTime: Long = 5L * 1000L,
+    pauseTime: Long = 3L * 1000L,
+    inactiveBarColor: Color = MaterialTheme.colorScheme.inverseSurface,
+    activeBarColor: Color = MaterialTheme.colorScheme.primary,
+    pauseBarColor: Color = Color.Yellow,
     modifier: Modifier = Modifier,
     initValue: Float = 1f,
     strokeWidth: Dp = 15.dp
@@ -37,19 +41,31 @@ fun Timer(
         mutableStateOf(initValue)
     }
     var currentTime by remember {
-        mutableStateOf(totalTime)
+        mutableStateOf(workTime)
     }
     var isTimerRunning by remember {
+        mutableStateOf(false)
+    }
+    var isPause by remember {
         mutableStateOf(false)
     }
 
     /////////////// ANIMATE TIMER /////////////////
 
     LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
-        if (currentTime > 0 && isTimerRunning) {
+        if (isTimerRunning && currentTime > 0L) {
             delay(100L)
             currentTime -= 100L
-            value = currentTime / totalTime.toFloat()
+            value = 
+                if(!isPause) { 
+                    currentTime / workTime.toFloat()
+                } else {
+                    currentTime / pauseTime.toFloat()
+                }
+        }
+        if (currentTime == 0L) {
+            isPause = !isPause
+            currentTime += if (isPause) { pauseTime } else { workTime }
         }
     }
 
@@ -57,21 +73,25 @@ fun Timer(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.onSizeChanged { size = it }
+        modifier = modifier
+            .onSizeChanged { size = it }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
                         if (currentTime <= 0L) {
-                            currentTime = totalTime
+                            currentTime = workTime
                             isTimerRunning = true
                         } else {
-                            isTimerRunning = !isTimerRunning
+                            if (!isPause) {
+                                isTimerRunning = !isTimerRunning
+                            }
                         }
                     },
                     onLongPress = {
-                        currentTime = totalTime
+                        currentTime = workTime
                         isTimerRunning = false
-                        value = totalTime.toFloat()
+                        isPause = false
+                        value = workTime.toFloat()
                     }
                 )
             }
@@ -87,11 +107,17 @@ fun Timer(
             )
             drawArc(
                 color =
-                if (!isTimerRunning || currentTime <= 0L) {
-                    Color.Cyan
-                } else {
-                    Color.Red
-                },
+                (
+                    if (!isTimerRunning) {
+                        activeBarColor
+                    } else {
+                        if (isPause) {
+                            pauseBarColor
+                        } else {
+                            Color.Red
+                        }
+                    }
+                ) as Color,
                 startAngle = -270f,
                 sweepAngle = 360f * value,
                 useCenter = false,
@@ -100,35 +126,16 @@ fun Timer(
             )
         }
         Text(
-            text = (currentTime / 1000L).toString(),
+            text =
+                if (currentTime / 1000L / 60L < 10L) { "0" } else { "" } +
+                (currentTime / 1000L / 60L).toString() + ":" +
+                if (currentTime / 1000L % 60L < 10L) { "0" } else { "" } +
+                (currentTime / 1000L % 60L).toString(),
+
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.secondary
         )
-//        Button(
-//            onClick = {
-//                      if (currentTime <= 0L) {
-//                          currentTime = totalTime
-//                          isTimerRunning = true
-//                      } else {
-//                          isTimerRunning = !isTimerRunning
-//                      }
-//            },
-//            modifier = Modifier.align(Alignment.BottomCenter),
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = if (!isTimerRunning || currentTime <= 0L) {
-//                    Color.Cyan
-//                } else {
-//                    Color.Red
-//                }
-//            )
-//        ) {
-//            Text(
-//                text = if(isTimerRunning && currentTime >= 0L) "Stop"
-//                else if(!isTimerRunning && currentTime >= 0L) "Start"
-//                else "Restart"
-//            )
-//        }
     }
 }
 
@@ -136,9 +143,7 @@ fun Timer(
 @Composable
 fun PreviewTimer() {
     Timer(
-        totalTime = 100L * 1000L,
-        inactiveBarColor = Color.DarkGray,
-//        activeBarColor = Color.Cyan,
+        workTime = 100L * 1000L,
         modifier = Modifier.size(200.dp)
     )
 }
