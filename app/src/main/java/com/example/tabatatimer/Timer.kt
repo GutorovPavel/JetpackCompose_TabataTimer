@@ -1,5 +1,6 @@
 package com.example.tabatatimer
 
+import android.content.Intent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tabatatimer.util.MyService
 import kotlinx.coroutines.delay
 
 @Composable

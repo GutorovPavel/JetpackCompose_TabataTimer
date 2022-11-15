@@ -1,12 +1,15 @@
 package com.example.tabatatimer
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
@@ -19,7 +22,9 @@ import com.example.tabatatimer.ui.theme.TabataTimerTheme
 import com.example.tabatatimer.ui.theme.add_todo.AddToDoScreen
 import com.example.tabatatimer.ui.theme.navigation_drawer.DrawContent
 import com.example.tabatatimer.ui.theme.todo_list.ToDoListScreen
+import com.example.tabatatimer.util.MyService
 import com.example.tabatatimer.util.Routes
+import com.example.tabatatimer.util.SettingsBundle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -29,9 +34,17 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Intent(this, MyService::class.java).also { intent ->
+            startService(intent)
+        }
         setContent {
-            TabataTimerTheme(darkTheme = true) {
-                
+            val isDarkModeValue = false
+            val isDarkMode = remember { mutableStateOf(isDarkModeValue) }
+
+            TabataTimerTheme(
+                darkTheme = isDarkMode.value
+            ) {
+
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 val navController = rememberNavController()
@@ -90,7 +103,16 @@ class MainActivity : ComponentActivity() {
                                 })
                             }
                             composable(Routes.SETTINGS) {
-                                SettingsScreen()
+                                val settings = SettingsBundle(
+                                    isDarkMode = isDarkMode.value
+                                )
+
+                                SettingsScreen(
+                                    settings = settings,
+                                    onSettingsChanged = {
+                                        isDarkMode.value = it.isDarkMode
+                                    }
+                                )
                             }
                         }
                     }
