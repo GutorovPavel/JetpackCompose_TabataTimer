@@ -1,6 +1,7 @@
 package com.example.tabatatimer
 
-import android.content.Intent
+
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -16,18 +17,25 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.tabatatimer.util.MyService
-import kotlinx.coroutines.delay
+import com.example.tabatatimer.service.ServiceHelper
+import com.example.tabatatimer.service.StopwatchService
+import com.example.tabatatimer.service.StopwatchState
+import com.example.tabatatimer.util.Constants.ACTION_SERVICE_CANCEL
+import com.example.tabatatimer.util.Constants.ACTION_SERVICE_START
+import com.example.tabatatimer.util.Constants.ACTION_SERVICE_STOP
 
+
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Timer(
-    workTime: Long = 5L * 1000L,
+    stopwatchService: StopwatchService,
+    workTime: Long = 10L * 1000L,
     pauseTime: Long = 3L * 1000L,
     inactiveBarColor: Color = MaterialTheme.colorScheme.inverseSurface,
     activeBarColor: Color = MaterialTheme.colorScheme.primary,
@@ -39,12 +47,17 @@ fun Timer(
     var size by remember {
         mutableStateOf(IntSize.Zero)
     }
+
     var value by remember {
         mutableStateOf(initValue)
     }
-    var currentTime by remember {
-        mutableStateOf(workTime)
-    }
+
+    val context = LocalContext.current
+    var currentTime by stopwatchService.currentTime
+    var currentState by stopwatchService.currentState
+
+    value = (currentTime / workTime).toFloat()
+
     var isTimerRunning by remember {
         mutableStateOf(false)
     }
@@ -52,25 +65,25 @@ fun Timer(
         mutableStateOf(false)
     }
 
+
     /////////////// ANIMATE TIMER /////////////////
-
-    LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
-        if (isTimerRunning && currentTime > 0L) {
-            delay(100L)
-            currentTime -= 100L
-            value = 
-                if(!isPause) { 
-                    currentTime / workTime.toFloat()
-                } else {
-                    currentTime / pauseTime.toFloat()
-                }
-        }
-        if (currentTime == 0L) {
-            isPause = !isPause
-            currentTime += if (isPause) { pauseTime } else { workTime }
-        }
-    }
-
+//
+//    LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
+//        if (isTimerRunning && currentTime > 0L) {
+//            delay(100L)
+//            currentTime -= 100L
+//            value =
+//                if(!isPause) {
+//                    currentTime / workTime.toFloat()
+//                } else {
+//                    currentTime / pauseTime.toFloat()
+//                }
+//        }
+//        if (currentTime == 0L) {
+//            isPause = !isPause
+//            currentTime += if (isPause) { pauseTime } else { workTime }
+//        }
+//    }
     ///////////////////////////////////////////////
 
     Box(
@@ -81,12 +94,26 @@ fun Timer(
                 detectTapGestures(
                     onTap = {
                         if (currentTime <= 0L) {
-                            currentTime = workTime
+//                            currentTime = workTime
                             isTimerRunning = true
+                            ServiceHelper.triggerForegroundService(
+                                context = context,
+                                action = if (currentState == StopwatchState.Started) ACTION_SERVICE_STOP
+                                else ACTION_SERVICE_START
+                            )
+//                                if(!isPause) {
+//                                    (currentTime / workTime).toFloat()
+//                                } else {
+//                                    (currentTime / pauseTime).toFloat()
+//                                }
                         } else {
-                            if (!isPause) {
-                                isTimerRunning = !isTimerRunning
-                            }
+//                           if (!isPause) {
+//                                isTimerRunning = !isTimerRunning
+//                            }
+//                            ServiceHelper.triggerForegroundService(
+//                                context = context, action = ACTION_SERVICE_CANCEL
+//                            )
+//                            isTimerRunning = !isTimerRunning
                         }
                     },
                     onLongPress = {
@@ -113,11 +140,11 @@ fun Timer(
                     if (!isTimerRunning) {
                         activeBarColor
                     } else {
-                        if (isPause) {
-                            pauseBarColor
-                        } else {
+//                        if (isPause) {
+//                            pauseBarColor
+//                        } else {
                             Color.Red
-                        }
+//                        }
                     }
                 ) as Color,
                 startAngle = -270f,
@@ -139,13 +166,4 @@ fun Timer(
             color = MaterialTheme.colorScheme.secondary
         )
     }
-}
-
-@Preview
-@Composable
-fun PreviewTimer() {
-    Timer(
-        workTime = 100L * 1000L,
-        modifier = Modifier.size(200.dp)
-    )
 }
